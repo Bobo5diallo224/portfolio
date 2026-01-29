@@ -1,6 +1,11 @@
 
         // Gestion du chargement
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialiser EmailJS
+            (function() {
+                emailjs.init("iGFFYAmLs1GjBH3TH"); // Clé publique EmailJS
+            })();
+            
             const loadingScreen = document.getElementById('loadingScreen');
             const navbar = document.getElementById('navbar');
             const hero = document.querySelector('.hero');
@@ -509,7 +514,7 @@ Compétences démontrées :
                 }
             });
 
-            // Formulaire de contact
+            // Formulaire de contact avec EmailJS
             const contactForm = document.getElementById('contactForm');
             const successModal = document.getElementById('successModal');
             const closeSuccessModal = document.getElementById('closeSuccessModal');
@@ -517,12 +522,26 @@ Compétences démontrées :
             contactForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                // Simuler l'envoi du formulaire
-                setTimeout(() => {
-                    successModal.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                    contactForm.reset();
-                }, 500);
+                // Récupérer les données du formulaire
+                const formData = new FormData(contactForm);
+                const templateParams = {
+                    from_name: formData.get('name'),
+                    from_email: formData.get('email'),
+                    subject: formData.get('subject'),
+                    message: formData.get('message')
+                };
+                
+                // Envoyer l'email via EmailJS
+                emailjs.send('service_qzomwoz', 'template_9jorn96', templateParams)
+                    .then(function(response) {
+                        console.log('SUCCESS!', response.status, response.text);
+                        successModal.classList.add('active');
+                        document.body.style.overflow = 'hidden';
+                        contactForm.reset();
+                    }, function(error) {
+                        console.log('FAILED...', error);
+                        alert('Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer.');
+                    });
             });
 
             closeSuccessModal.addEventListener('click', () => {
